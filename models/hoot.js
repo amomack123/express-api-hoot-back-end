@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 // comment schema which is embedded inside hoot model
 const commentSchema = new mongoose.Schema(
     {
@@ -8,7 +10,7 @@ const commentSchema = new mongoose.Schema(
       author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     },
     { timestamps: true }
-  );
+);
 
 
 // hoot model
@@ -31,7 +33,7 @@ const hootSchema = new mongoose.Schema(
       comments: [commentSchema]
     },
     { timestamps: true }
-  );
+);
     // registering the model
     const Hoot = mongoose.model('Hoot', hootSchema);
 
