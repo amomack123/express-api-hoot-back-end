@@ -39,6 +39,3 @@ const hootSchema = new mongoose.Schema(
 
     // exporting the model
     module.exports = Hoot;
-
-
-  

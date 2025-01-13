@@ -40,13 +40,27 @@ router.get('/', async (req, res) => {
 // Fetch a hoot by ID and get author
 router.get('/:hootId', async (req, res) => {
     try {
-      const hoot = await Hoot.findById(req.params.hootId).populate('author');
-      res.status(200).json(hoot);
-    } 
-    catch (error) {
-      res.status(500).json(error);
+        const hoot = await Hoot.findById(req.params.hootId)
+            .populate('author') // Populating author of the hoot
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'author', // Populating author of each comment
+                    select: 'username', // Select only the username field
+                },
+            });
+
+        if (!hoot) {
+            return res.status(404).json({ message: 'Hoot not found' });
+        }
+
+        res.status(200).json(hoot);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(error);
     }
-    });
+});
+
 
 // Update a specific hoot by ID 
 router.put('/:hootId', async (req, res) => {
@@ -117,19 +131,21 @@ router.post('/:hootId/comments', async (req, res) => {
 // Update a specific comment on a hoot    
 router.put('/:hootId/comments/:commentId', async (req, res) => {
     try {
-        // Find id of respective comment and hoot
         const hoot = await Hoot.findById(req.params.hootId);
         const comment = hoot.comments.id(req.params.commentId);
+
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
 
         // Update and save
         comment.text = req.body.text;
         await hoot.save();
-        res.status(200).json({ message: 'Ok' });
-    } 
-    catch (err) {
-      res.status(500).json(err);
+        res.status(200).json({ message: 'Comment updated successfully' });
+    } catch (err) {
+        res.status(500).json(err);
     }
-    });
+});
 
 // Delete a specific comment from a hoot
 router.delete('/:hootId/comments/:commentId', async (req, res) => {
